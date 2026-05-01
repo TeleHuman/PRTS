@@ -29,10 +29,10 @@
 We will progressively open-source the rest of the PRTS stack. Tick = done, square = upcoming.
 
 - [x] PRTS-4B pre-trained checkpoint &mdash; [🤗 TeleEmbodied/PRTS-4B](https://huggingface.co/TeleEmbodied/PRTS-4B)
-- [ ] **Project page &mdash; ⚠️ <em>currently under maintenance, content out-of-date</em>** &nbsp; The site https://rhodes-team-prts.github.io/ will be refreshed in the next few days with final video demos, BibTeX, and benchmark cards.
+- [ ] **Project page &mdash; ⚠️ <em>currently under maintenance, content out-of-date</em>** ; the site https://rhodes-team-prts.github.io/ will be refreshed in the next few days with final video demos, BibTeX, and benchmark cards.
 - [ ] Minimal SFT post-training code for LIBERO + real-robot platforms
-- [ ] CRL value visualization scripts &mdash; reproduce the value curve from §6.5 of the paper
-- [ ] LIBERO evaluation harness &mdash; reproduce the SR numbers in Tables 1 / 2 / 3
+- [ ] CRL value visualization scripts
+- [ ] LIBERO evaluation of PRTS
 - [ ] PRTS-4B post-trained checkpoints for LIBERO / SimplerEnv WidowX &mdash; the exact checkpoints behind Tables 1&ndash;4 of the paper, for one-click reproduction
 <!-- - [ ] PRTS-4B post-trained checkpoints for our RealMan dual-arm and Flexiv single-arm real-robot suites -->
 <!-- - [ ] Pre-training code (CRL data pipeline + role-aware CuTe-FlashAttention kernel) &mdash; gated on internal review -->
@@ -92,7 +92,7 @@ The gap to baselines **grows** as evaluation drifts further off-distribution: `+
 
 ### LIBERO-Pro: novel instruction & position swapping
 
-This is where PRTS's CRL value really earns its keep. The benchmark holds the visual scene fixed and rewrites either the instruction (**Task** axis) or the target relation (**Position** axis).
+This is where PRTS's CRL shaped representations really earn its keep. The benchmark holds the visual scene fixed and rewrites either the instruction (**Task** axis) or the target relation (**Position** axis).
 
 | Method | Semantic | Object | Position | **Task** | **Average** |
 | :--- | :---: | :---: | :---: | :---: | :---: |
