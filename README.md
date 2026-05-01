@@ -42,7 +42,11 @@ We will progressively open-source the rest of the PRTS stack. Tick = done, squar
 Most VLA models pretrain by behavior cloning &mdash; they learn *what to do*, but never internalize *how close the current state is to satisfying the instruction*. PRTS reframes pre-training as a **goal-conditioned RL** problem and supervises a language-conditioned **contrastive value** alongside the action loss, all from offline trajectory structure alone.
 
 The geometry the model converges to is sharp: the inner product
-$$\phi(s,\mathbf{a})^{\top}\psi(l) \;\approx\; \log Q^{\pi}_{l}(s,\mathbf{a})$$
+
+$$
+\phi(s,\mathbf{a})^{\top}\psi(l) \approx \log Q^{\pi}_{l}(s,\mathbf{a})
+$$
+
 of the state&ndash;action embedding and the goal embedding tracks the log-discounted goal-occupancy along expert rollouts. It rises as the policy approaches the language goal, and stays flat under a mismatched instruction.
 
 <table>
