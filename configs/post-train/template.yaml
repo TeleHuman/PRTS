@@ -1,0 +1,6 @@
+lerobot_datasets:
+  - repo_id: YOUR_DATASET_NAME
+    root: /path/to/your/dataset
+    load_quantile_stats: true             # for loading q01 and q99 in v2.1 LerobotDataset
+    state_relative_action: false          # the bool to determine whether we pre-process the delta action; MUST be used coupled with `embodiment_tag`
+    embodiment_tag: YOUR_EMBODYMENT_TAG   # which embodiment we are using

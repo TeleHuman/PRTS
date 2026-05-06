@@ -1,0 +1,6 @@
+lerobot_datasets:
+  - repo_id: libero_4_suites
+    root: /path/to/libero_4_suites
+    load_quantile_stats: true
+    state_relative_action: false
+    embodiment_tag: libero_panda
