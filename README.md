@@ -19,8 +19,9 @@
 
 ## 📰 News
 
-- **2026/05** &nbsp; PRTS arXiv preprint released &mdash; [arXiv:2604.27472](https://arxiv.org/abs/2604.27472).
+- **2026/05** &nbsp; Minimal SFT post-training code released &mdash; reproduces the LIBERO and real-robot fine-tuning runs from the paper.
 - **2026/05** &nbsp; Pre-trained PRTS-4B checkpoint pushed to [🤗 TeleEmbodied/PRTS-4B](https://huggingface.co/TeleEmbodied/PRTS-4B).
+- **2026/05** &nbsp; PRTS arXiv preprint released &mdash; [arXiv:2604.27472](https://arxiv.org/abs/2604.27472).
 
 
 
@@ -28,11 +29,13 @@
 
 We will progressively open-source the rest of the PRTS stack. Tick = done, square = upcoming.
 
+- [x] PRTS arXiv preprint &mdash; [arXiv:2604.27472](https://arxiv.org/abs/2604.27472)
 - [x] PRTS-4B pre-trained checkpoint &mdash; [🤗 TeleEmbodied/PRTS-4B](https://huggingface.co/TeleEmbodied/PRTS-4B)
+- [x] Standard LIBERO LeRobot-v2.1 dataset for example fine-tuning &mdash; [🤗 TeleEmbodied/libero_4_suites](https://huggingface.co/datasets/TeleEmbodied/libero_4_suites)
+- [x] Minimal SFT post-training code for LIBERO + real-robot platforms
+- [x] LIBERO evaluation of PRTS
 - [ ] **Project page &mdash; ⚠️ <em>currently under maintenance, content out-of-date</em>** ; the site https://rhodes-team-prts.github.io/ will be refreshed in the next few days with final video demos, BibTeX, and benchmark cards.
-- [ ] Minimal SFT post-training code for LIBERO + real-robot platforms
 - [ ] CRL value visualization scripts
-- [ ] LIBERO evaluation of PRTS
 - [ ] PRTS-4B post-trained checkpoints for LIBERO / SimplerEnv WidowX &mdash; the exact checkpoints behind Tables 1&ndash;4 of the paper, for one-click reproduction
 <!-- - [ ] PRTS-4B post-trained checkpoints for our RealMan dual-arm and Flexiv single-arm real-robot suites -->
 <!-- - [ ] Pre-training code (CRL data pipeline + role-aware CuTe-FlashAttention kernel) &mdash; gated on internal review -->
@@ -75,6 +78,159 @@ The signal is computed by the **pre-trained checkpoint without any post-training
 | 💰 **Reward-label-free** | Supervision comes *purely* from the temporal structure of demonstrations &mdash; no per-episode success labels and no curated value-training corpus. |
 | ⚡ **Near-BC pre-training cost** | A role-aware causal mask fused into FlashAttention via a custom CuTe kernel keeps per-layer attention within **`1.18 ×`** of vanilla FA3, vs. `2.7 ×–8.8 ×` for off-the-shelf FlexAttention. End-to-end pre-training scales at **`≥ 85 %`** linear efficiency on 64 × H100. |
 | 🌍 **Out-of-distribution wins grow with the shift** | On 5 simulation suites and 14 real-world tasks, PRTS matches or exceeds the strongest prior VLAs at **¼ &ndash; ⅛** the post-training compute, with the gap **widening** as evaluation moves further off-distribution: novel-instruction following (`+38.8` over &pi;<sub>0.5</sub>), long-horizon execution, and recovery under human intervention. |
+
+
+## 🛠️ Getting Started
+
+### 1. Environment
+
+PRTS targets **CUDA 12.6 + PyTorch 2.11 + transformers 4.57.3**. We recommend a fresh conda env:
+
+```bash
+# 1) Clone
+git clone https://github.com/TeleEmbodied/PRTS.git
+cd PRTS
+
+# 2) Create env
+conda create -n prts python=3.11 -y
+conda activate prts
+
+# 3) Install LeRobot first
+pip install lerobot==0.3.3
+
+# 4) Install the rest
+pip install -r requirements.txt
+
+# 5) FlashAttention installation (we recommend FlashAttention-3, which is the default attn implementation in our training, i.e., `--attn-implementation flash_attention_3`)
+MAX_JOBS=8 pip install flash-attn==2.8.3 --no-build-isolation # only for FA2
+
+# 6) Editable install of PRTS itself
+pip install -e .
+```
+
+### 2. Download the pre-trained checkpoint
+
+```bash
+huggingface-cli download TeleEmbodied/PRTS-4B \
+    --local-dir $HF_HUB_CACHE/models--TeleEmbodied--PRTS-4B
+huggingface-cli download Qwen/Qwen3-VL-4B-Instruct \
+    --local-dir $HF_HUB_CACHE/models--Qwen--Qwen3-VL-4B-Instruct
+```
+
+### 3. Fine-tune on your own LeRobot dataset
+
+Fine-tuning is driven by a single YAML pointing at one or more **LeRobot v2.1** datasets (local folder or HF repo). A minimal config (see [`configs/post-train/template.yaml`](configs/post-train/template.yaml)):
+
+```yaml
+# configs/post-train/my_robot.yaml
+lerobot_datasets:
+  - repo_id: my_robot_v1                       # any string id, used for logging
+    root: /path/to/your/lerobot_dataset        # local v2.1 LeRobot folder
+    load_quantile_stats: true                  # load q01/q99 from meta/stats.json (run compute_stats.py first before starting fine-tuning)
+    state_relative_action: false               # true = train on (action - state); must match `embodiment_tag`
+    embodiment_tag: my_robot_tag               # see prts/data/embodiment_tag.py
+```
+
+**Key fields explained:**
+
+| Field | Meaning |
+|---|---|
+| `repo_id` | Dataset short name. Doubles as a tag in the loss-channel logs (`flow_matching/<repo_id>`). |
+| `root` | Absolute path to a v2.1 LeRobot dataset folder (must contain `meta/info.json`, `meta/episodes.jsonl`, `meta/stats.json`, …). |
+| `load_quantile_stats` | If `true`, loads `q01/q99` from `meta/stats.json` for `QUANTILE` normalization. Generate them once with `python scripts/compute_stats.py --config <your.yaml>`. |
+| `state_relative_action` | `true` makes the policy predict `action − state` for the dims masked in the embodiment config. Must agree with the `embodiment_tag` you choose. |
+| `embodiment_tag` | One of the keys in [`prts/data/embodiment_tag.py`](prts/data/embodiment_tag.py): `libero_panda`, `flexiv`, `realman_dual_arm`, `arx_dual_arm`, `galaxea_r1_pro`, `agibot_g2`, or the generic `full_state_relative` / `full_absolute`. To add a new robot, append a new `EmbodimentConfig` entry — the `delta_action_mask` is truncated to your real action dim at runtime. |
+
+You can list **multiple datasets** under `lerobot_datasets:` and they will be co-trained with sample-level mixing.
+
+### 4. Launch the fine-tune
+
+Edit the top of [`scripts/ft/launch_finetune.sh`](scripts/ft/launch_finetune.sh) — these are the knobs you will most often touch:
+
+```bash
+GPUS=4                                              # number of local GPUs
+PER_DEVICE_BATCH_SIZE=8
+dataset_config_path=configs/post-train/my_robot.yaml
+embodiment_tag=my_robot_tag                         # must match the YAML above
+chunk_size=20                                       # action horizon
+action_dim=32                                       # >= max action dim across listed datasets
+max_train_steps=30000
+state_mode=QUANTILE                                  # or MEAN_STD / MIN_MAX
+model_name_or_path=$HF_HUB_CACHE/models--TeleEmbodied--PRTS-4B  # or "TeleEmbodied/PRTS-4B"
+```
+
+Then:
+
+```bash
+# 1) Pre-compute normalization statistics. This walks each dataset listed under
+#    `lerobot_datasets:` once and writes `<root>/meta/norm_stats.json`
+#    (mean/std/min/max + q01/q99) — the same file `load_quantile_stats: true`
+#    reads at training time.
+python scripts/compute_stats.py \
+    --data_path configs/post-train/my_robot.yaml
+
+# 2) Launch SFT (DeepSpeed ZeRO-2 by default)
+bash scripts/ft/launch_finetune.sh
+```
+
+Checkpoints land under `outputs/<date>/<time>-<run_name>/` and the final policy is saved as `checkpoint-final-<step>/`.
+
+### Serving a trained policy
+
+`scripts/serve_policy.py` does **not** accept a `--ckpt-path` flag — checkpoints are looked up via an `EnvMode` enum and a `DEFAULT_CHECKPOINT` table. To serve your own run, register a new entry in both:
+
+```python
+# scripts/serve_policy.py
+
+class EnvMode(enum.Enum):
+    ALOHA      = "aloha"
+    ALOHA_SIM  = "aloha_sim"
+    DROID      = "droid"
+    LIBERO     = "libero"
+    SIMPLER    = "simplerenv"
+    LIBERO_hf  = "libero_dit"
+    MY_ROBOT   = "my_robot"          # ← add this
+
+DEFAULT_CHECKPOINT: dict[EnvMode, Checkpoint] = {
+    ...
+    EnvMode.MY_ROBOT: Checkpoint(    # ← and this
+        config       = "prts_my_robot",
+        dir          = "outputs/2026-XX-XX/.../checkpoint-final-30000",
+        action_dim   = 7,                       # must match your dataset action dim
+        dataset_path = "/path/to/your/lerobot_dataset",
+        state_mode   = "QUANTILE",              # must match normalization mode used at training
+        state_relative_action = False,          # must match the YAML used at training
+    ),
+}
+```
+
+Then launch the websocket policy server (consumed by the OpenPI client included in `third_party/openpi-client`):
+
+```bash
+python scripts/serve_policy.py --env my_robot --port 10093
+```
+
+The four fields `action_dim / dataset_path / state_mode / state_relative_action` **must agree with the YAML used during fine-tuning** — they are how the server reconstructs the un-normalization pipeline so that the actions returned over the websocket are in the same convention your robot expects.
+
+### 5. Examples on LIBERO
+
+The repo ships a ready-to-run config so you can confirm the stack end-to-end before pointing it at your own data. We also released the LeRobot-v2.1 packaging of the four LIBERO suites we used for the paper at [🤗 TeleEmbodied/libero_4_suites](https://huggingface.co/datasets/TeleEmbodied/libero_4_suites) — pull it down once and the rest is one shell command:
+
+```bash
+# 1) Download the LIBERO LeRobot dataset
+huggingface-cli download TeleEmbodied/libero_4_suites \
+    --repo-type dataset \
+    --local-dir /path/to/libero_4_suites
+
+# 2) Point configs/post-train/libero.yaml at the folder you just downloaded
+#    (edit the `root:` field), then:
+
+# 3) Launch SFT
+bash scripts/ft/launch_finetune.sh
+```
+
+A successful run prints `total_params=…, trainable_params=…, [≈99 %]` at startup and begins logging `flow_matching/libero_4_suites_channel_loss` within the first ~100 steps.
+
 
 
 ## 📊 Results

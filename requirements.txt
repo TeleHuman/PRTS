@@ -1,0 +1,32 @@
+# Core dependencies
+# CUDA 12.6 wheels (equivalent to: pip install torch torchvision --index-url https://download.pytorch.org/whl/cu126).
+# Use extra-index-url so PyPI remains the default index for transformers, etc.
+# --extra-index-url https://download.pytorch.org/whl/cu126
+
+# lerobot==0.3.3
+torch==2.11.0
+torchvision==0.26.0
+torchcodec==0.11.0
+transformers==4.57.3
+accelerate
+
+
+# Training and optimization
+deepspeed
+wandb>=0.15.0
+tensorboard
+
+
+tqdm
+pyyaml
+qwen-vl-utils==0.0.14
+numba==0.63.1
+scipy==1.17.0
+numpydantic==1.7.0
+pandas==3.0.0
+tyro==1.0.9
+ujson
+colorlog
+
+# Local editable deps (run: pip install -r requirements.txt from repo root)
+-e ./third_party/openpi-client
