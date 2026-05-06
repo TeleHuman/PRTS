@@ -324,3 +324,17 @@ If you find PRTS useful, please consider citing:
 ## 🙏 Acknowledgements
 
 PRTS builds on [Qwen3-VL](https://github.com/QwenLM/Qwen3-VL), [FlashAttention](https://github.com/Dao-AILab/flash-attention), [LeRobot](https://github.com/huggingface/lerobot), and [OpenPI](https://github.com/openpilab/openpi). We thank the authors of [Contrastive RL](https://github.com/google-research/google-research/tree/master/contrastive_rl) for the ideas behind the contrastive value formulation.
+
+## 📬 Contact
+
+Feel free to open an issue or discussion if you encounter any problems or have questions about this project.
+
+For collaborations, feedback, or further inquiries, please reach out to Yang Zhang (**breezeyoung9470@gmail.com**).
+
+You can also join our WeChat discussion group for timely Q&A:
+
+<p align="center">
+  <img src="assets/readme/wechat_qr.png" alt="PRTS WeChat discussion group" width="36%"/>
+</p>
+
+<p align="center"><sub>(QR code refreshed weekly &mdash; if it has expired, please email and we will update it.)</sub></p>
