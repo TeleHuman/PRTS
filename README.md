@@ -19,6 +19,8 @@
 
 ## 📰 News
 
+- **2026/05** &nbsp; LIBERO post-trained checkpoint released &mdash; [🤗 TeleEmbodied/PRTS-4B-LIBERO](https://huggingface.co/TeleEmbodied/PRTS-4B-LIBERO), the exact checkpoint behind the LIBERO numbers in the paper.
+- **2026/05** &nbsp; Project page refreshed with final video demos, BibTeX, and benchmark cards &mdash; [rhodes-team-prts.github.io](https://rhodes-team-prts.github.io/).
 - **2026/05** &nbsp; Minimal SFT post-training code released &mdash; reproduces the LIBERO and real-robot fine-tuning runs from the paper.
 - **2026/05** &nbsp; Pre-trained PRTS-4B checkpoint pushed to [🤗 TeleEmbodied/PRTS-4B](https://huggingface.co/TeleEmbodied/PRTS-4B).
 - **2026/05** &nbsp; PRTS arXiv preprint released &mdash; [arXiv:2604.27472](https://arxiv.org/abs/2604.27472).
@@ -34,9 +36,10 @@ We will progressively open-source the rest of the PRTS stack. Tick = done, squar
 - [x] Standard LIBERO LeRobot-v2.1 dataset for example fine-tuning &mdash; [🤗 TeleEmbodied/libero_4_suites](https://huggingface.co/datasets/TeleEmbodied/libero_4_suites)
 - [x] Minimal SFT post-training code for LIBERO + real-robot platforms
 - [x] LIBERO evaluation of PRTS
-- [ ] **Project page &mdash; ⚠️ <em>currently under maintenance, content out-of-date</em>** ; the site https://rhodes-team-prts.github.io/ will be refreshed in the next few days with final video demos, BibTeX, and benchmark cards.
+- [x] Project page &mdash; [rhodes-team-prts.github.io](https://rhodes-team-prts.github.io/) with final video demos, BibTeX, and benchmark cards.
+- [x] PRTS-4B post-trained checkpoint for LIBERO &mdash; [🤗 TeleEmbodied/PRTS-4B-LIBERO](https://huggingface.co/TeleEmbodied/PRTS-4B-LIBERO), for one-click reproduction of the paper's LIBERO numbers.
 - [ ] CRL value visualization scripts
-- [ ] PRTS-4B post-trained checkpoints for LIBERO / SimplerEnv WidowX &mdash; the exact checkpoints behind Tables 1&ndash;4 of the paper, for one-click reproduction
+- [ ] PRTS-4B post-trained checkpoint for SimplerEnv WidowX
 <!-- - [ ] PRTS-4B post-trained checkpoints for our RealMan dual-arm and Flexiv single-arm real-robot suites -->
 <!-- - [ ] Pre-training code (CRL data pipeline + role-aware CuTe-FlashAttention kernel) &mdash; gated on internal review -->
 
@@ -88,7 +91,7 @@ PRTS targets **CUDA 12.6 + PyTorch 2.11 + transformers 4.57.3**. We recommend a 
 
 ```bash
 # 1) Clone
-git clone https://github.com/TeleEmbodied/PRTS.git
+git clone https://github.com/TeleHuman/PRTS.git
 cd PRTS
 
 # 2) Create env
